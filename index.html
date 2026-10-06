@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light"><meta name="theme-color" content="#3b5b8c">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="LitQuiz"><meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="apple-touch-icon" href="icon-192.png"><link rel="manifest" href="manifest.json">
+<title>Literature Quiz Tracker</title>
+<style>
+:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#faf8f4;--card:#fff;--tx:#1f1d1a;--mu:#7a756c;--bd:#e4dfd5;--ac:#3b5b8c;--g:#2e9e5b;--o:#f0922b;--r:#d94040;--n:#bbb}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.45 Georgia,'Times New Roman',serif}
+#app{max-width:640px;margin:0 auto;padding:16px 16px 110px}
+h1{font-size:22px;margin:4px 0 12px}h2{font-size:17px;margin:18px 0 8px}
+.bar{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.back{background:none;border:0;color:var(--ac);font:inherit;padding:6px 0;cursor:pointer}
+.row{display:flex;align-items:center;justify-content:space-between;background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px;margin:8px 0;cursor:pointer}
+.row small{color:var(--mu);display:block}
+.dot{width:16px;height:16px;border-radius:50%;flex:none;margin-left:10px}
+.x{background:none;border:0;color:var(--mu);font-size:16px;padding:4px 8px;cursor:pointer}
+.add{display:flex;gap:8px;margin-top:12px}
+input,textarea{flex:1;font:inherit;padding:10px;border:1px solid var(--bd);border-radius:10px;background:var(--card);color:var(--tx);width:100%}
+textarea{min-height:200px;font-size:14px}
+.btn{background:var(--ac);color:#fff;border:0;border-radius:10px;padding:10px 16px;font:inherit;cursor:pointer}
+.btn.alt{background:none;color:var(--ac);border:1px solid var(--ac)}
+.opt{display:block;width:100%;text-align:left;background:var(--card);border:1.5px solid var(--bd);border-radius:12px;padding:12px;margin:8px 0;font:inherit;color:var(--tx);cursor:pointer}
+.opt.sel{border-color:var(--ac);background:color-mix(in srgb,var(--ac) 14%,var(--card))}
+.nav{display:flex;justify-content:space-between;margin-top:16px}
+.legend{font-size:13px;color:var(--mu);display:flex;gap:12px;flex-wrap:wrap;margin:6px 0}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px}
+.res{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px;margin:10px 0}
+.ok{color:var(--g)}.no{color:var(--r)}
+.big{font-size:34px;text-align:center;margin:10px 0}
+.hint{font-size:13px;color:var(--mu);white-space:pre-wrap}
+
+#splash{position:fixed;inset:0;z-index:50;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .5s;gap:18px;padding:20px;text-align:center}
+#splash.off{opacity:0;pointer-events:none}
+#sp{width:170px;animation:hop 1.1s ease-in-out infinite}
+#sbub{background:var(--card);border:1.5px solid var(--bd);border-radius:18px;padding:12px 18px;font-size:19px;box-shadow:0 4px 14px #0001}
+#pet{position:fixed;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));width:68px;z-index:20;display:none;transition:width .3s;cursor:pointer}
+#pet.big{width:92px}
+#pw{animation:sway 3.4s ease-in-out infinite}
+#pw.spin{animation:spin 1.8s ease-in-out}
+#pw.hop{animation:hop .6s ease}
+#pw svg,#sp svg{width:100%;display:block;overflow:visible}#sp svg{animation:sway 3s ease-in-out infinite}
+.eyes{transform-origin:50px 66px;animation:blink 4s infinite}
+#bub{position:fixed;right:14px;bottom:calc(92px + env(safe-area-inset-bottom,0px));max-width:220px;background:var(--card);border:1.5px solid var(--bd);border-radius:14px;padding:8px 12px;font-size:14px;z-index:21;opacity:0;transform:translateY(6px);transition:.3s;pointer-events:none;box-shadow:0 3px 10px #0001}
+#bub.on{opacity:1;transform:none}
+#pet.big~#bub,#bub.big{bottom:calc(116px + env(safe-area-inset-bottom,0px))}
+.sp{position:absolute;left:50%;top:50%;font-size:20px;animation:spk 1.6s ease-out forwards;pointer-events:none}
+@keyframes sway{0%,100%{transform:perspective(320px) rotateY(-16deg) translateY(0) scale(1,1)}50%{transform:perspective(320px) rotateY(16deg) translateY(-5px) scale(.98,1.03)}}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+@keyframes hop{0%,100%{transform:translateY(0)}40%{transform:translateY(-18px) rotate(-4deg)}70%{transform:translateY(0) rotate(3deg)}}
+@keyframes spin{0%{transform:translateY(0) scale(1.1,.88)}20%{transform:translateY(-30px) scale(.94,1.1) rotate(0)}60%{transform:translateY(-34px) rotateY(720deg)}100%{transform:translateY(0) scale(1)}}
+@keyframes blink{0%,93%,100%{transform:scaleY(1)}96%{transform:scaleY(.1)}}
+@keyframes spk{from{transform:translate(-50%,-50%) rotate(var(--a)) translateY(0) scale(.4);opacity:1}to{transform:translate(-50%,-50%) rotate(var(--a)) translateY(-78px) scale(1.2);opacity:0}}
+</style></head><body><div id="app"></div><div id="splash"><div id="sp"></div><div id="sbub"></div></div><div id="bub"></div><div id="pet"><div id="pw"></div></div>
+<script>
+const K='litquiz_v1';
+const uid=()=>Math.random().toString(36).slice(2,9);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const seed=()=>[
+ {id:uid(),name:'English Literature',subs:[{id:uid(),name:'Middle English',quizzes:[]},{id:uid(),name:'Elizabethan Period',quizzes:[]}]},
+ {id:uid(),name:'American Literature',subs:[{id:uid(),name:'Romanticism',quizzes:[]}]},
+ {id:uid(),name:'Indian Literature',subs:[{id:uid(),name:'Indian English Writing',quizzes:[]}]},
+ {id:uid(),name:'Literary Theory',subs:[{id:uid(),name:'Structuralism',quizzes:[]},{id:uid(),name:'Post-structuralism',quizzes:[]}]}];
+let D=null;
+try{D=JSON.parse(localStorage.getItem(K))}catch(e){}
+if(!D||!D.length)D=seed();
+const save=()=>{try{localStorage.setItem(K,JSON.stringify(D))}catch(e){}};
+let S={v:'home'};
+const BI={sec:'English Literature',sub:'Chaucer to Shakespeare',key:'litquiz_imp1',data:`Which of the four chief dialects that flourished in the Pre-Chaucerian period became the standard English in Chaucer's time?|The Northern|The Southern|The East Midland|The West Midland|C
+"He found English a dialect and left it a language". Who estimates Chaucer's greatness in this respect?|William Ker|Lowes|Ward|Mandeville|B
+Which of the following poems of Chaucer is considered the first novel in English?|The House of Fame|The Parliament of Fowls|The Book of the Duchess|Troilus and Criseyde|D
+There is something common between Boccaccio's "Filostrato" and Chaucer's|"Legende of Goode Wommen"|"Troilus and Criseyde"|"Prologue to Canterbury Tales"|"Roman de la Rose"|B
+The plan of Chaucer's "Canterbury Tales" takes on|Decameron|Filostrato|Roman de la Rose|Divinde Comedy|A
+Which of the following tales of Chaucer deals with the Chivalric romance of Palamon and Arcite?|The Miller's Tale|The Merchant's Tale|The Knight's Tale|The Franklin's Tale|C
+Chaucer was called, "The earliest of the great moderns" and was also called, "The morning star of the Renaissance." Who initiated these remarks?|Kittredge|Hudson|Albert|Pope|C
+Which of the following works of Chaucer presents the picture of a strong united nation?|"The House of Fame"|"Knight"|"Merchant"|"Canterbury Tales"|D
+"When Adam delved and Eve span, who was then the gentleman." Who told this to the people?|An agitator from peasants|A Romantic Poet|A Reformer|An author of prose work|A
+How many tales are to be told by each pilgrim?|Two|Three|Four|One|C
+The pilgrims are going to visit the tomb of|Thomas Acquinas|Saint Mary|Saint John|Thomas Becket|D
+Where is the tomb of the Saint situated?|Warwickshire|Shaftesbury|Canterbury|Stratford-upon-Avon|C
+In which poem did Chaucer use the heroic couplet for the first time?|"Canterbury Tales"|"House of Fame"|"The Legende of Goode Wommen"|"Troilus and Criseyde"|C
+How many tales in all were written by Chaucer?|Thirty-two|Twenty-four|Sixty-four|One hundred and twenty-eight|B
+"Amor Vincit Omnia" in Chaucer's Prologue which means|Love is blind|Love is fatal|Love conquers nothing|Love conquers all|D
+Which of the following comes forth with the story of "the infinite incredible patience of Griselda under the tests imposed by her husband Walter."|Clerk of Oxford|Prioress|Wife of Bath|Franklin|A
+How many pilgrims are there in Prologue to "Canterbury Tales" including the poet?|Thirty-one|Thirty|Twenty-nine|Twenty-eight|C
+Chaucer dedicated his "Troilus" to|John Gower|William Langland|John Wycliff|King Edward II|A
+Who tells the last tale in Chaucer's "Canterbury Tales"?|The Prioress|The Nun|The Parson|The Monk|C
+Which of the following tales is in prose?|"The Parson's Tale"|"The Tale of Melibeus"|Both (a) and (b)|None of the above|C
+Who among the following said about Chaucer's Prologue to the "Canterbury Tales" that "here indeed is God's plenty"?|Dryden|Pope|Ben Jonson|Dr. Johnson|A
+Who is known as the connecting link between Chaucer and Spenser?|Henry Howard|Thomas Sackville|Roger Ascham|Sir Thomas Wyatt|B
+The works of Wyatt and Surrey were published in Tottel's Miscellany in|1553|1557|1563|1568|B
+The Licencing Act for closing of all theaters except Drury Lane and Covent Garden was passed in|1734|1735|1736|1737|D
+The first English playhouse called 'The Theatre' was founded in|1574|1575|1576|1577|C
+Gorboduc, the first regular comedy in English, was written by|Nicholas Udall|John Heywood|Thomas Norton|Sackville and Norton|D
+When were theatres closed in England?|1623|1642|1616|1650|B
+When did the great fire of London take place?|1610|1606|1640|1666|D
+Who among the following is/are the English Chaucerians?|Thomas Occleve|Alexander Barclay|John Lydgate|All the above|D
+Who among the following is not the English Chaucerian|Robert Henryson|William Dunbar|Stephen Howes|Both (a) and (b)|D
+Which work of the Scottish Chaucerians imitates Chaucer's "House of Fame"?|Douglas' "King Hart"|Douglas' "The Palace of Honour"|Dunbar's "The Thistle and the Rose"|Henryson's "Testament of Cresseid"|B
+Caxton's printing press was set up in|1475|1476|1477|1478|B
+Which is the first book in English in poetic prose?|Confessio Amantis|Nun's Priest's Tale|Morte d' Arthur|Vox Clamantis|C
+Which work is considered to be the true prologue to the Renaissance?|Tottel's Miscellany|More's Utopia|Aschem's The Schoolmaster|None of the above|B
+Chaucer wrote the "Romance of the Rose" under the influence of|De Lorris and De Meun|Dante and Boccaccio|Blanche and De Lorries|Blanche and Meung|A
+Which war resulted in bringing Tudor Rule in England?|The Anglo-French Wars|The Battle of Hastings|The War of Roses|The Battle of Agincourt|C
+The Travels of Sir John Mandeville is believed to be the English translation of a certain French writer named as|John of Trevisa|Meun|Jean de Bourgogne|De Lorris|C
+Gower is represented as a figure of old poetic authority in Shakespeare's play:|Pericles|Venus and Adonis|Cymbeline|Titus Andronicus|A
+The Spanish Armada was defeated in|1488|1496|1540|1588|D
+The literary genre, the ecologue, is attributed to|John Skelton|Alexander Barclay|William Dunbar|Stephen Hawes|B
+"La Male Regle" by Thomas Occleve is a satire on|Poverty|Superstition|Fanaticism|Morality|A
+Tottel's Miscellany contained the songs and sonnets of|Wyatt and Surrey|Wyatt and Raleigh|Sidney and Surrey|Sidney and Raleigh|A
+Roger Ascham's Toxophilus is a dialogue in praise of|Fencing|Archery|Wrestling|Horse-riding|B
+The Schoolmaster by Roger Ascham is a/an|morality play|human ideal|educational treatise|All of the above|C
+Who is known as the Chaucer of Scotland?|William Dunbar|Robert Henryson|John Lydgate|Gavin Douglas|A
+Which of Chaucer's work has the Trojan War as its background?|"The Parliament of Fowls"|"Troilus and Criseyde"|"The Book of the Duchess"|"The House of Fame"|B
+Chaucer lived during the reign of|Edward III and Richard II|Edward III and Henry IV|Richard II and Henry IV|Edward III, Richard II and Henry IV|D
+Chaucer has used the technique of mock-heroic in|"The Pardoner's Tale"|"Miller's Tale"|"Nun's Priest's Tale"|"Franklin's Tale"|C
+The influence of Dante's "Divine Commedia" is apparent in which of Chaucer's works?|"The House of Fame"|"The Parliament of Fowls"|"The Book of Duchess"|"Troilus and Criseyde"|A
+'The Peasant's Revolt' resulted in the|Dethroning of the king|Demolition of Church as an institution|End of serfdom|Rise of nationalism|C
+The Wife of Bath in the Canterbury Tales tells about her ____ marriages.|Three|Four|Two|Five|D
+"The Book of the Duchess" was written on the death of|Simon de Montfort|Edward the Confessor|John of Gaunt|Henry-II|C
+What was the prize for the best story teller among the pilgrims in "The Canterbury Tales"?|A free home ride|A free supper|A free stay in the inn|The Bible|B
+In which tale of Chaucer, a daughter is killed by her father?|"The Monk's Tale"|"The Physician's Tale"|"The Friar's Tale"|"The Clerk's Tale"|B
+In Chaucer's "The Canterbury Tales", which of the following deals with two young Theban Warriors?|"The Knight's Tale"|"The Squire's Tale"|"The Miller's Tale"|"The Friar's Tale"|A
+The writer who gave the first full expression of the English sense of humour was|Gower|Langland|Chaucer|Wycliffe|C
+In whose story, the character of Griselda appears?|"The Clerk's Tale"|"The Reeve's Tale"|"The Miller's Tale"|"The Friar's Tale"|A
+In the Prologue to "The Canterbury Tales", Chaucer used|Terzets|Rhyme-royal|Eight-Syllabic line|Ten-syllabic line|D
+In "The Book of the Duchess", Chaucer made use of|Terzets|Rhyme-royal|Eight-Syllabic line|Ten-syllabic line|C
+Who called the Prologue to "The Canterbury Tales" "The Prologue to modern fiction"?|Pope|Long|Arnold|Spenser|B
+Dream Allegory was a popular poetic form during the|Medieval Period|Renaissance|Latin, English|Puritan Age|A
+John Gower's "Vox Clamantis" and "Confessio John Amantis" are written in|French, Latin|Latin and French|Latin and English|None of the above|C
+Who translated the Bible into English?|Gower|Langland|Wyclif|Chaucer|C
+What does the word "Lollard" mean?|priests|peasants|rabble|mumbling of prayers|D
+Who is the author of Piers the Plowman?|Lydgate|Henryson|Gower|Langland|D
+Who among the following is called the morning star of the Reformation?|Calvin|Bacon|Luther|Wyclif|D
+Langland's Piers the Plowman is a satire on|Aristocracy|Peasant's revolt|Clergy|Society|C
+Who said that Chaucerians' inferiority is well marked in satire as in anything else?|Saintsbury|Hugh Walker|A.C. Ward|Dryden|B
+In Chaucer's characters who is shown to be in love for gold?|The monk|The merchant|Doctor of physic|Man of law|C
+Who called Chaucer, "The Well of English Undefiled"?|Spenser|Arnold|Sidney|Eliot|A
+"The Well of English Undefiled" means Chaucer's|Realism|Art of characterization|Humour|Avoidance of foreign influence|D
+William Blake said that their traits are universal, "their lineaments are of universal human, life beyond which Nature never steps." Here, who are theirs?|English Chaucerians|Scottish Chaucerians|Chaucer's Characters|Lollards|C
+In 1388, Wycliffe's translation of the Bible was revised by|Chaucer|John Purvey|Vulgates|John Trevisa|B
+Which poem celebrates the betrothal of Richard II and Anne of Bohemia?|"The Book of Duchess"|"The Parliament of Fowls"|"The House of Fame"|"Faerie Queene"|B
+The Thrissil and the Rois celebrates the marriage of James IV to Margaret Tudor. Who wrote this allegory?|Donne|Dunbar|King James I|None of the above|B
+Dunbar's The Two Married Women and the Widow is|A love allegory|A ballad|A novel|About conjugal relationships|D
+Michael Drayton's The Shepherd's Garland is a series of|Lyric poems|Eclogues|Ballads|Sonnets|B
+"Why Come Ye Not to Court?" is a satire on|Cromwell|More|Sidney|Wolsey|D
+Match the plays and their authors: 1. The Goldyn Targe 2. Why Come Ye Not to Court 3. The Fall of Princes 4. The Ship of Fools. Authors: (a) Alexander Barclay (b) Lydgate (c) John Skelton (d) Dunbar|1-c, 2-a, 3-a, 4-b|1-d, 2-c, 3-b, 4-a|1-b, 2-d, 3-a, 4-c|1-a, 2-b, 3-c, 4-d|B
+Which of the following poems of Skelton is not a satire?|"The Book of the Laurel"|"Colin Clout"|"Speak Parrot"|"Why Come Ye Not to Court"|A
+"Ralph Roister Doister", the first regular English Comedy, is modelled after|French|Seneca|Terence|Plautus|D
+Philip Sidney's Astrophel and Stella is addressed to|Penelope|Lady Rich|Queen Elizabeth|Both (a) and (b)|D
+In The School of Abuse (1579), Stephen Gosson attacked as a Puritan, the art of the age, especially the drama. What form of literature is it?|Satirical poem|Drama|Pamphlet|Novel|C
+Who wrote in prose "The Historie of Richard III"?|Spenser|Marlowe|More|Shakespeare|C
+"The Shepherd's Calender", a series of twelve pastoral poems, is written by|Chaucer|Gower|Spenser|Sidney|C
+Spenser's satirical poem is|"The Faerie Queene"|"Epithalamion"|"Prothalamion"|"Mother Hubberd's Tale"|D
+To whom has Spenser addressed his introductory letter in "The Faerie Queene"?|Virgil|Sidney|Raleigh|Queen Elizabeth|C
+Match the knights and the qualities they represent in "The Faerie Queene": (a) Sir Calidore (b) Sir Artegal (c) Cambel and Telamond (d) Sir Guyan (e) Britomart (f) Red Cross knight. Qualities: 1. Courtesy 2. Justice 3. Friendship 4. Chastity 5. Temperance 6. Holiness|a-1, b-2, c-3, d-4, e-5, f-6|a-3, b-4, c-5, d-6, e-2, f-1|a-4, b-5, c-6, d-2, e-1, f-3|a-2, b-3, c-6, d-5, e-1, f-4|A
+Edmund Spenser's "The Fairie Queene" was modelled after an Italian prototype. Identify:|Virgil's Aeneid|Boccaccio's Decameron|Boccaccio's Filostrato|Ariosto's Orlando Furioso|D
+What is Spenser's sonnet series called?|Shepherd's Calender|Amoretti|Complaints|Hymns|B
+Who wrote "Polyolbion", a huge poem in Alexandrines, containing a descriptive geography of England?|William Warner|John Davies|Michael Drayton|Samuel Daniel|C
+Match the sonnet volumes and their poets: (a) Daniel (b) Drayton (c) Lodge (d) Constable. Volumes: 1. Phyllis 2. Diana 3. Idea 4. Delia|a-2, b-3, c-4, d-1|a-4, b-3, c-1, d-2|a-3, b-1, c-4, d-2|a-1, b-2, c-3, d-4|B
+Who completed Christopher Marlowe's Hero and Leander?|Ben Jonson|Shakespeare|Chapman|Heywood|C
+Christopher Marlowe's 'mighty line' first came into Elizabethan drama with|Tamburlaine|Arden of Feversham|The Spanish Tragedy|None of the above|A
+Thomas Kyd was the founder of|Romantic comedy|Romantic tragedy|Satire|Dramatic romance|A
+The first picaresque novel which is written by Thomas Nash was|Anatomy of Absurdity|Terrors of Night|The Life of Jack Wilton|None of the above|C
+Which work of Robert Greene gave the plot to Shakespeare's "The Winter's Tale"?|Groats-Worth of Wit|Pandosto|Orlando Furioso|Friar Bacon|B
+Life of Shakespeare is written by|Sidney Lee|Philip Sidney|Marlowe|Spenser|A
+Shakespeare's First Folio was published in|1600|1610|1620|1623|D
+Which play by Shakespeare is considered autobiographical?|The Winter's Tale|The Tempest|Pericles|Cymbeline|B
+Who said, "It is the stars, The stars above us, govern our conditions."|King Lear|Edgar|Kent|Fool|A
+Which play of Shakespeare is a dramatisation of a story told by Chaucer in "Knight's Tale"?|The Merchant of Venice|As You Like It|The Two Noble Kinsmen|The Tempest|C
+In which play of Shakespeare are all guilty?|Measure for Measure|Twelfth Night|As You Like It|All's Well That Ends Well|A
+Boccaccio's "Decameron" is echoed in Shakespeare's|All's Well That Ends Well|Troilus and Cressida|Cymbeline|Twelfth Night|A
+Sidney's Arcadia is drawn by Shakespeare in|King Lear|Macbeth|"The Winter's Tale"|The Tempest|A
+Lyly's Endymion is an elaborate compliment to Queen Elizabeth. Who appears in the character of|Phyllis|Helen|Mary|Cynthia|D
+Which was Marlowe's first play?|Jew of Malta|Dr. Faustus|Tamburlaine|Edward II|C
+"Was this the face that launched a thousand ships / And burnt the topless towers of Ilium?" Where do these lines appear?|Edward II|Dr. Faustus|Jew of Malta|Tamburlaine|B
+Who is the Jew of Malta?|Falstaff|Antonio|Shylock|Barabas|D
+The credit for introducing "Poulter's Measure" in English Poetry goes to|Spenser|Chaucer|Surrey|Wyatt|C
+Mirror for Magistrates (1563) is the work of|Robert Henryson|David Lindsay|Thomas Shadwell|Thomas Sackville|D
+The term "Poulter's Measure" was coined by|Surrey|Sidney|Gascoigne|Shakespeare|C
+Sidney's Arcadia is similar to|More's Utopia|Spenser's Epithalamion|Drayton's Poly-Olbion|Shakespeare's Cymbeline|A
+Which of the following works of Daniel is a romance?|Certaine Epistles|Hymen's Triumph|Delia|The Complaynt of Rosamund|D
+The "Marlowian Hero" is known for his hunger for|Knowledge|Power|Gold|Peace|B
+Which of the following plays of Marlowe is based on a German legend?|Edward II|The Jew of Malta|Doctor Faustus|Tamburlaine the Great|C
+Which of the following plays of Robert Greene is an imitation of Marlowe's Tamburlaine?|Friar Bacon and Friar Bungay|Menaphon|Alphonsus, King of Aragon|The Triumph of Time|C
+Which of the following Theatres was pulled down and rebuilt as|The Globe|Blackfriars|The Theatre|Avon|A
+In which play of Shakespeare does Hippolyta appear?|The Tempest|A Midsummer Night's Dream|Titus Andronicus|Much Ado About Nothing|B
+Shakespeare's Julius Caesar was modelled after|Thomas North's Translation of Plutarch|Holinshed's Chronicles|Historical Truth|Boccaccio's Decameron|A
+Who said that Shakespeare knew "little Latin and less Greek"?|Samuel Johnson|Dryden|Ben Jonson|Marlowe|C
+Which of the following plays of Shakespeare is not a Roman play?|Julius Caesar|Antony and Cleopatra|Coriolanus|Timon of Athens|D
+Which play of Shakespeare is a "Conversation play"?|Much Ado About Nothing|Comedy of Errors|Two Gentlemen of Verona|Love's Labour's Lost|D
+In which play do Beatrice and Benedick appear?|All's Well That Ends Well|Twelfth Night|Much Ado About Nothing|Measure for Measure|C
+An Apology for Poetry was in response to the School of Abuse by|Michael Drayton|Thomas Norton|Stephen Gosson|John Lyly|C
+What does Shakespeare refer to in the following lines: "This royal throne of kings, the sceptred isle / This earth of Majesty, this seat of Mars. / This other Eden, demi-Paradise".|France|London|Denmark|England|D
+Who coined the phrase "Marlowe's mighty line"?|Samuel Johnson|Ben Jonson|Matthew Arnold|Richard Steele|B
+Mephistopheles is a character in|Dr. Faustus|The Jew of Malta|The Massacre of Paris|Edward II|A
+Shakespeare's Venus and Adonis is based on Marlowe's|The Tragedy of Dido|The Passionate Shepherd|Hero and Leander|The Massacre of Paris|C
+Who is called the Dickens of Elizabethan age?|Thomas Heywood|John Marston|Thomas Dekker|George Chapman|C
+Which of the following is considered to be the best play of Thomas Heywood?|The English Traveller|The Captives|A Woman Killed With Kindness|King Edward the Fourth|D
+Who is the writer of The Shoemaker's Holiday?|Middleton|Thomas Dekker|Thomas Hobbes|Francis Beaumont|B
+Who regards Shakespeare's early comedies as "joyous, refined, romantic"?|Morris|Swinburne|Dowden|Beardsley|C
+The love-affair of Silvius and Phebe takes place in the play|The Merchant of Venice|As You Like It|A Midsummer Night's Dream|The Tempest|B
+Which play of Shakespeare has been regarded as "One of Shakespeare's most assured artistic successes" by T.S. Eliot?|Coriolanus|Hamlet|The Tempest|The Comedy of Errors|A
+Match the heroines and their plays: (a) Portia (b) Viola (c) Rosalind (d) Miranda. Plays: 1. As You Like It 2. The Tempest 3. Twelfth Night 4. The Merchant of Venice|a-4, b-3, c-1, d-2|a-3, b-4, c-2, d-1|a-1, b-2, c-4, d-3|a-2, b-1, c-3, d-4|A
+In which Shakespearean play do we come across Rosencrantz and Guildenstern?|A Midsummer Night's Dream|Hamlet|The Tempest|King Lear|B
+Match the Protagonists and their tragic flaws: (a) King Lear (b) Hamlet (c) Othello (d) Macbeth. Flaws: 1. Arrogance 2. Indecision 3. Jealousy 4. Ambition|a-1, b-2, c-3, d-4|a-3, b-1, c-4, d-2|a-4, b-3, c-1, d-2|a-2, b-1, c-4, d-3|A
+What is the Subtitle of Pericles?|Prince of Princes|Prince of Ardon|The Great Prince|Prince of Tyre|D
+Where did Charles Lamb call "a prose Shakespeare"?|Thomas Heywood|Thomas Middleton|Thomas Dekker|Thomas Kyd|A
+What is the first collected edition of Shakespearean plays called?|First Edition|First Folio|Folio One|First Collection|B
+Match the Protagonists and their beloved: (a) Hamlet (b) Othello (c) Bassanio (d) Titania. Beloved: 1. Ophelia 2. Desdemona 3. Portia 4. Oberon|a-1, b-2, c-3, d-4|a-4, b-3, c-2, d-1|a-3, b-1, c-4, d-2|a-2, b-4, c-1, d-3|A
+"Full Fathom five thy father lies." Where do we find these lines?|A Midsummer Night's Dream|A Winter's Tale|The Taming of the Shrew|The Tempest|D
+"Ripeness is all" occurs in|Hamlet|King Lear|Macbeth|Othello|B
+"Readiness is all" occurs in|Julius Caesar|Othello|Macbeth|Hamlet|C
+"There is providence in the fall of a sparrow" occurs in|A Farewell to Arms|War and Peace|King Lear|Hamlet|D
+"Uneasy lies the head that wears the crown" occurs in|Edward II|Richard III|Henry IV|Henry V|C
+Who made the study of imagery in Shakespeare?|Caroline Spurgeon|William Empson|I.A. Richards|T.S. Eliot|A
+A distinguishing feature of Shakespeare sonnet is that it has|an octave rhyming abba abba|trochaic metre|a variable number of lines|a couplet at the end|D
+"But the Lear of Shakespeare cannot be acted." Who said it?|Lamb|Coleridge|Hazlitt|Dr. Johnson|A
+Hamlet is a|Historical play|Romance|Revenge tragedy|Comedy of humours|C
+Shakespeare's Cymbeline draws on|Plutarch's Lives|Boccaccio's Decameron|Historical truth|Holinshed's Chronicles|D
+Which Shakespearean character asks to be remembered as one who "loved not wisely but too well"?|Macbeth|Hamlet|King Lear|Othello|D
+The subtitle of Shakespeare's Othello is|The Prince of Denmark|The Mad Man|The Moor of Venice|Jealousy Incarnate|C
+In which of the following plays of Shakespeare appears an "Indian boy"?|A Midsummer Night's Dream|As You Like It|Merry Wives of Windsor|Love's Labour's Lost|A
+Who among the following said that in Shakespeare's great tragedies "Character is destiny"?|S.T. Coleridge|Samuel Johnson|T.S. Eliot|A.C. Bradley|D
+Who has made a Freudian interpretation of Hamlet?|Iris Murdoch|G. Wilson Knight|Ernest Jones|C.S. Lewis|C
+Richard Hooker is the author of which of the following works?|Of Love and Marriage|Of Books|Of Truth|Of the Laws of Ecclesiastical Polity|D
+The subtitle of the White Devil is|The Duchess of Florence|A Classic Tragedy|Death of a Pure Soul|Vittoria Corombona|D
+"My soul, like to a ship in a black storm, is driven, I know not whither." These words are said by|The Duchess of Malfi|Vittoria Corombona|Helen of Troy|Dr. Faustus|B
+John Webster wrote two clever comedies Westward HO, Northward HO in collaboration with|Beaumont and Fletcher|Ben Jonson|Thomas Dekker|Thomas Middleton|C
+The Plot of which of the following tragedies is derived from William Painter's "Palace of Pleasure"?|The Duchess of Malfi|The Spanish Tragedy|The White Devil|The Changeling|A
+Which of the following is a dark comedy?|The Taming of the Shrew|All's Well That Ends Well|The Merry Wives of Windsor|Measure for Measure|C,D
+Where do we find the clown Feste?|Two Gentlemen of Verona|Twelfth Night|A Winter's Tale|The Taming of the Shrew|B
+Match the following: A. Antony and Cleopatra B. As You Like It C. Othello D. Measure for Measure. Sources: 1. Promos and Cassandra 2. Plutarch's Lives 3. Rosalind 4. Hecatommithi|A-2, B-3, C-4, D-1|A-1, B-2, C-3, D-4|A-4, B-3, C-2, D-1|A-3, B-4, C-1, D-2|A
+Who asserted, "Unmarried men are best friends, best masters, best servants"?|Pope|Bacon|Blake|Shakespeare|A
+Who died of cold?|Plato|Shakespeare|Dryden|Bacon|D
+Who said, "A friend is another himself"?|Lamb|Bacon|Pope|Addison|B
+Who said, "We are the fortunes of the human race"?|Addison|Pope|Bacon|Dryden|C
+Who is known as the father of inductive philosophy?|Aristotle|Plato|Bacon|Homer|C
+Which of the following books of Bacon is incomplete?|The Advancement of Learning (1605)|The History of Henry VII (1622)|Apophthegmes (1625)|The New Atlantis (1627)|D
+Which of the following Latin books of Bacon is on "the new logic or inductive method of reasoning"?|De Augmentis Scientiarum (1623)|Novum Organum (1620)|Instauratio (1623)|Sylva Sylvarum (1627)|B
+The third and the final edition of Bacon's Essays came out in|1597|1612|1625|1631|C
+Who wrote the following: "Crafty men condemn studies, simple men admire them, and wise men use them ____"?|Shakespeare|George Chapman|Robert Burton|Francis Bacon|D
+The inhabitants of New Atlantis owe their happiness to|operation of reason.|equality for all.|study and research.|None of the above.|C
+Solomon's House in The New Atlantis is the name of|A learned academy.|Parliament house.|Where money is stored.|None of the above.|A`};
+(function(){try{if(localStorage.getItem(BI.key))return}catch(e){}
+ let s=D.find(x=>x.name===BI.sec);if(!s){s={id:uid(),name:BI.sec,subs:[]};D.push(s)}
+ const qs=BI.data.trim().split('\n').map(l=>{const p=l.split('|'),a=p.pop(),q=p.shift();return {q,o:p,a:(a.match(/[A-Da-d]/g)||[]).map(c=>'ABCD'.indexOf(c.toUpperCase()))}});
+ const u={id:uid(),name:BI.sub,quizzes:[]};
+ for(let i=0;i<qs.length;i+=44)u.quizzes.push({id:uid(),title:'Chaucer to Shakespeare · Q'+(i+1)+'–'+Math.min(i+44,qs.length),qs:qs.slice(i,i+44),last:null,hist:[]});
+ s.subs.push(u);save();try{localStorage.setItem(BI.key,'1')}catch(e){}})();
+
+const col=p=>p==null?'var(--n)':p>=75?'var(--g)':p>=50?'var(--o)':'var(--r)';
+const quizzesOf=x=>(x.subs?x.subs.flatMap(s=>s.quizzes):x.quizzes);
+const score=x=>{const l=quizzesOf(x).filter(q=>q.last!=null);return l.length?l.reduce((a,q)=>a+q.last,0)/l.length:null};
+const sec=()=>D.find(s=>s.id===S.s);
+const sub=()=>sec().subs.find(s=>s.id===S.u);
+const qz=()=>sub().quizzes.find(q=>q.id===S.q);
+const go=o=>{if(S.v==='result'&&o.v!=='result')leaveResult();S=o;render();scrollTo(0,0)};
+const dot=p=>`<span class="dot" style="background:${col(p)}"></span>`;
+const legend='<div class="legend"><span><i style="background:var(--g)"></i>Strong (75%+)</span><span><i style="background:var(--o)"></i>Average (50–74%)</span><span><i style="background:var(--r)"></i>Needs practice</span><span><i style="background:var(--n)"></i>Not attempted</span></div>';
+const addBox=(ph,fn)=>`<div class="add"><input id="ni" placeholder="${ph}"><button class="btn" onclick="${fn}">Add</button></div>`;
+const val=()=>document.getElementById('ni').value.trim();
+
+function addSec(){const n=val();if(!n)return;D.push({id:uid(),name:n,subs:[]});save();render()}
+function addSub(){const n=val();if(!n)return;sec().subs.push({id:uid(),name:n,quizzes:[]});save();render()}
+function del(kind,id,e){e.stopPropagation();if(S.pend!==id){S.pend=id;render();return}
+ if(kind==='s')D=D.filter(x=>x.id!==id);
+ else if(kind==='u')sec().subs=sec().subs.filter(x=>x.id!==id);
+ else sub().quizzes=sub().quizzes.filter(x=>x.id!==id);
+ S.pend=null;save();render()}
+const xb=(k,id)=>`<button class="x" onclick="ren('${k}','${id}',event)">✎</button><button class="x" onclick="del('${k}','${id}',event)">${S.pend===id?'<b style="color:var(--r)">Delete?</b>':'✕'}</button>`;
+const back=()=>{S=S.prev;render();scrollTo(0,0)};
+function ren(k,id,e){e.stopPropagation();
+ if(k==='q'){const q=sub().quizzes.find(x=>x.id===id);return go({v:'edit',s:S.s,u:S.u,q:id,d:JSON.parse(JSON.stringify(q)),prev:S})}
+ go({v:'ren',k,id,s:S.s,u:S.u,prev:S})}
+function saveRen(){const n=document.getElementById('rn').value.trim();if(!n)return;
+ (S.k==='s'?D.find(x=>x.id===S.id):sec().subs.find(x=>x.id===S.id)).name=n;save();back()}
+function gather(){const d=S.d;d.title=document.getElementById('et').value;
+ d.qs.forEach((x,i)=>{x.q=document.getElementById('eq'+i).value;x.o=x.o.map((_,k)=>document.getElementById('eo'+i+'_'+k).value);
+  x.a=x.o.map((_,k)=>k).filter(k=>document.getElementById('ea'+i+'_'+k).checked)})}
+function dq(i){gather();S.d.qs.splice(i,1);render()}
+function aq(){gather();S.d.qs.push({q:'',o:['','','',''],a:[]});render();scrollTo(0,document.body.scrollHeight)}
+function sq(){gather();const d=S.d;
+ if(!d.title.trim())return alert('Title is empty.');
+ for(let i=0;i<d.qs.length;i++){const x=d.qs[i];if(!x.q.trim()||x.o.some(o=>!o.trim())||!x.a.length)return alert('Question '+(i+1)+' needs text, all options filled, and at least one correct answer ticked.')}
+ const q=qz();q.title=d.title.trim();q.qs=d.qs;save();back()}
+
+function parse(t){
+ return t.split(/\n\s*\n/).map(b=>{
+  const L=b.split('\n').map(l=>l.trim()).filter(Boolean);
+  let q=[],o=[],a=null;
+  L.forEach(l=>{let m;
+   if(m=l.match(/^(?:answer|ans)\s*[:\-]?\s*(.+)/i))a=(m[1].match(/[A-Da-d]/g)||[]).map(c=>'ABCD'.indexOf(c.toUpperCase()));
+   else if(m=l.match(/^\(?([A-Da-d])[\).]\s*(.+)/))o.push(m[2]);
+   else if(!o.length)q.push(l.replace(/^\d+[\).]\s*/,''));});
+  return {q:q.join(' '),o,a};
+ }).filter(x=>x.q&&x.o.length>=2&&x.a&&x.a.length&&x.a.every(i=>i<x.o.length));
+}
+function makeQuiz(){
+ const title=document.getElementById('qt').value.trim(),qs=parse(document.getElementById('qb').value);
+ if(!title)return alert('Please enter a quiz title.');
+ if(!qs.length)return alert('No valid questions found. Check the format shown above the box.');
+ sub().quizzes.push({id:uid(),title,qs,last:null,hist:[]});save();go({v:'sub',s:S.s,u:S.u});
+}
+function start(id){go({v:'play',s:S.s,u:S.u,q:id,i:0,ans:[]})}
+function pick(k){S.ans[S.i]=k;render()}
+function submit(){
+ const q=qz();const right=q.qs.filter((x,i)=>[].concat(x.a).includes(S.ans[i])).length;
+ const p=Math.round(right/q.qs.length*100);
+ q.last=p;q.hist.push({p,d:new Date().toISOString().slice(0,10)});save();
+ S.v='result';S.right=right;S.p=p;onResult(p);render();scrollTo(0,0)}
+
+function render(){
+ const A=document.getElementById('app');let h='';
+ if(S.v==='home'){
+  h=`<h1>📚 Literature Quizzes</h1>${legend}`+D.map(s=>`<div class="row" onclick="go({v:'sec',s:'${s.id}'})"><div><b>${esc(s.name)}</b><small>${s.subs.length} topics</small></div><div style="display:flex;align-items:center">${xb('s',s.id)}${dot(score(s))}</div></div>`).join('')+addBox('New section (e.g. British Poetry)','addSec()');
+ }else if(S.v==='sec'){
+  const s=sec();
+  h=`<button class="back" onclick="go({v:'home'})">‹ All sections</button><h1>${esc(s.name)}</h1>${legend}`+s.subs.map(u=>`<div class="row" onclick="go({v:'sub',s:'${s.id}',u:'${u.id}'})"><div><b>${esc(u.name)}</b><small>${u.quizzes.length} quizzes</small></div><div style="display:flex;align-items:center">${xb('u',u.id)}${dot(score(u))}</div></div>`).join('')+addBox('New sub-section (e.g. Romantic Age)','addSub()');
+ }else if(S.v==='sub'){
+  const u=sub();
+  h=`<button class="back" onclick="go({v:'sec',s:'${S.s}'})">‹ ${esc(sec().name)}</button><h1>${esc(u.name)}</h1>`+(u.quizzes.length?'':'<p class="hint">No quizzes yet. Create your first one below.</p>')+u.quizzes.map(q=>`<div class="row" onclick="start('${q.id}')"><div><b>${esc(q.title)}</b><small>${q.qs.length} questions${q.last!=null?' · last '+q.last+'% · '+q.hist.length+' attempt'+(q.hist.length>1?'s':''):''}</small></div><div style="display:flex;align-items:center">${xb('q',q.id)}${dot(q.last)}</div></div>`).join('')+`<button class="btn" style="margin-top:14px;width:100%" onclick="go({v:'make',s:'${S.s}',u:'${S.u}'})">+ Create a quiz</button>`;
+ }else if(S.v==='make'){
+  h=`<button class="back" onclick="go({v:'sub',s:'${S.s}',u:'${S.u}'})">‹ Cancel</button><h1>New quiz</h1><input id="qt" placeholder="Quiz title"><h2>Paste questions</h2><p class="hint">Separate questions with a blank line. Format:
+
+1. Who wrote The Canterbury Tales?
+A. Langland
+B. Chaucer
+C. Gower
+D. Malory
+Answer: B</p><textarea id="qb" placeholder="Paste here..."></textarea><button class="btn" style="margin-top:12px;width:100%" onclick="makeQuiz()">Save quiz</button>`;
+ }else if(S.v==='ren'){
+  const n=S.k==='s'?D.find(x=>x.id===S.id).name:sec().subs.find(x=>x.id===S.id).name;
+  h=`<button class="back" onclick="back()">‹ Cancel</button><h1>Rename</h1><div class="add"><input id="rn" value="${esc(n)}"><button class="btn" onclick="saveRen()">Save</button></div>`;
+ }else if(S.v==='edit'){
+  const d=S.d;
+  h=`<button class="back" onclick="back()">‹ Cancel</button><h1>Edit quiz</h1><input id="et" value="${esc(d.title)}"><p class="hint">Tick the correct option(s) for each question.</p>`+d.qs.map((x,i)=>`<div class="res"><div style="display:flex;justify-content:space-between"><b>Q${i+1}</b><button class="x" onclick="dq(${i})" style="color:var(--r)">Delete</button></div><textarea id="eq${i}" style="min-height:70px;margin:6px 0">${esc(x.q)}</textarea>`+x.o.map((o,k)=>`<div class="add" style="margin:6px 0;align-items:center"><label style="white-space:nowrap"><input type="checkbox" style="width:auto;flex:none" id="ea${i}_${k}" ${[].concat(x.a).includes(k)?'checked':''}> ${'ABCD'[k]}</label><input id="eo${i}_${k}" value="${esc(o)}"></div>`).join('')+`</div>`).join('')+`<div style="display:flex;gap:8px;margin-top:12px"><button class="btn alt" style="flex:1" onclick="aq()">+ Add question</button><button class="btn" style="flex:1" onclick="sq()">Save changes</button></div>`;
+ }else if(S.v==='play'){
+  const q=qz(),x=q.qs[S.i],last=S.i===q.qs.length-1;
+  h=`<button class="back" onclick="go({v:'sub',s:'${S.s}',u:'${S.u}'})">‹ Exit</button><h1>${esc(q.title)}</h1><div class="hint">Question ${S.i+1} of ${q.qs.length}</div><h2>${esc(x.q)}</h2>`+x.o.map((o,k)=>`<button class="opt ${S.ans[S.i]===k?'sel':''}" onclick="pick(${k})"><b>${'ABCD'[k]}.</b> ${esc(o)}</button>`).join('')+`<div class="nav"><button class="btn alt" ${S.i?'':'disabled style="opacity:.4"'} onclick="S.i--;render()">Previous</button>${last?`<button class="btn" onclick="submit()">Submit</button>`:`<button class="btn" onclick="S.i++;render()">Next</button>`}</div>`;
+ }else if(S.v==='result'){
+  const q=qz();
+  h=`<h1>${esc(q.title)}</h1><div class="big" style="color:${col(S.p)}">${S.right} / ${q.qs.length} · ${S.p}%</div><div style="display:flex;gap:8px"><button class="btn" style="flex:1" onclick="start('${q.id}')">Retake</button><button class="btn alt" style="flex:1" onclick="go({v:'sub',s:'${S.s}',u:'${S.u}'})">Back to topic</button></div><h2>Answer key</h2>`+q.qs.map((x,i)=>{const a=S.ans[i],ok=[].concat(x.a).includes(a);return `<div class="res"><b>${i+1}. ${esc(x.q)}</b><br>Your answer: <span class="${ok?'ok':'no'}">${a==null?'—':'ABCD'[a]+'. '+esc(x.o[a])} ${ok?'✓':'✗'}</span>${ok?'':`<br>Correct: <span class="ok">${[].concat(x.a).map(k=>'ABCD'[k]+'. '+esc(x.o[k])).join('  or  ')}</span>`}</div>`}).join('');
+ }
+ A.innerHTML=h;$('pet').classList.toggle('big',S.v==='result');$('bub').classList.toggle('big',S.v==='result');
+}
+
+const $=id=>document.getElementById(id),NAME='Rinsha',rnd=a=>a[Math.floor(Math.random()*a.length)];
+let petN=0;
+function petSVG(m){const u='p'+(petN++),E='#2a1a14',st=`stroke="${E}" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"`;
+ const eye=(x)=>`<circle cx="${x}" cy="66" r="7" fill="url(#${u}e)"/><ellipse cx="${x}" cy="70.6" rx="4.6" ry="2" fill="#8a6254" opacity=".5"/><circle cx="${x-2.4}" cy="63.2" r="2.4" fill="#fff"/><circle cx="${x+3}" cy="69" r="1" fill="#fff" opacity=".7"/>`;
+ let eyes,mouth,extra='';
+ if(m==='happy'){eyes=`<path d="M28 68Q34 59 40 68M60 68Q66 59 72 68" stroke="${E}" stroke-width="3.2" fill="none" stroke-linecap="round"/>`;mouth=`<path d="M41 74Q50 91 59 74Z" fill="#7a2f33" ${st}/><ellipse cx="50" cy="79.6" rx="4" ry="2.4" fill="#ea7482"/>`}
+ else{eyes=`<g class="eyes">${eye(34)}${eye(66)}</g>`;
+  mouth=m==='sad'?`<path d="M42 82Q50 74 58 82" ${st}/>`:m==='ok'?`<path d="M43 78H57" ${st}/>`:`<path d="M42 76Q50 83 58 76" ${st}/>`;
+  if(m==='sad')extra=`<path d="M26 56L41 60M74 56L59 60" ${st}/><path d="M28 74Q25 79 28 82Q31 79 28 74Z" fill="#9fd6ff" stroke="#fff" stroke-width=".6"/>`}
+ const body='M50 7C54 7 56 13 58 20C75 30 91 48 91 68C91 84 72 91 50 91C28 91 9 84 9 68C9 48 25 30 42 20C44 13 46 7 50 7Z';
+ return `<svg viewBox="0 0 100 100"><defs>
+<radialGradient id="${u}g" cx=".36" cy=".3" r=".85"><stop offset="0" stop-color="#fffefa"/><stop offset=".4" stop-color="#fbf0da"/><stop offset=".78" stop-color="#ebd4aa"/><stop offset="1" stop-color="#d4b583"/></radialGradient>
+<linearGradient id="${u}s" x1="0" y1=".45" x2="0" y2="1"><stop offset="0" stop-color="#b08a55" stop-opacity="0"/><stop offset="1" stop-color="#a07a45" stop-opacity=".38"/></linearGradient>
+<radialGradient id="${u}e" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#5b4036"/><stop offset=".55" stop-color="#2a1a14"/><stop offset="1" stop-color="#120a08"/></radialGradient>
+<radialGradient id="${u}c" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="#ffc9d3"/><stop offset="1" stop-color="#ee8a9e"/></radialGradient>
+<radialGradient id="${u}f" cx=".4" cy=".3" r=".8"><stop offset="0" stop-color="#f6e6c8"/><stop offset="1" stop-color="#cfae7c"/></radialGradient>
+<filter id="${u}b" x="-30%" y="-80%" width="160%" height="260%"><feGaussianBlur stdDeviation="2.2"/></filter>
+<filter id="${u}p"><feGaussianBlur stdDeviation="3"/></filter><filter id="${u}t"><feGaussianBlur stdDeviation=".9"/></filter></defs>
+<ellipse cx="50" cy="93.5" rx="35" ry="5" fill="#4a2e12" opacity=".3" filter="url(#${u}b)"/>
+<ellipse cx="35" cy="89.5" rx="7.5" ry="4.6" fill="url(#${u}f)"/><ellipse cx="65" cy="89.5" rx="7.5" ry="4.6" fill="url(#${u}f)"/>
+<path d="${body}" fill="url(#${u}g)"/><path d="${body}" fill="url(#${u}s)"/>
+<g filter="url(#${u}t)" fill="none" stroke-linecap="round"><path d="M50 11C47 28 44 40 36 52M50 11C53 28 58 40 67 50M50 11C50 28 50 40 50 48" stroke="#a98a58" stroke-width="2" opacity=".4"/><path d="M52 12C50 28 47 40 40 52M53 12C55 28 61 40 70 50" stroke="#fff" stroke-width="1.6" opacity=".7"/></g>
+<ellipse cx="33" cy="46" rx="11" ry="6.5" transform="rotate(-38 33 46)" fill="#fff" opacity=".6" filter="url(#${u}p)"/>
+<path d="M85 54Q92 70 84 83" stroke="#fff" stroke-width="3" fill="none" opacity=".35" filter="url(#${u}t)"/>
+${eyes}<ellipse cx="22" cy="77" rx="6.5" ry="4.2" fill="url(#${u}c)"/><ellipse cx="20.6" cy="75.5" rx="2.4" ry="1.2" fill="#fff" opacity=".65"/><ellipse cx="78" cy="77" rx="6.5" ry="4.2" fill="url(#${u}c)"/><ellipse cx="76.6" cy="75.5" rx="2.4" ry="1.2" fill="#fff" opacity=".65"/>${mouth}${extra}</svg>`}
+let petT,lastP=0;
+const setMood=m=>{$('pw').innerHTML=petSVG(m)};
+function say(t,ms=3800){const b=$('bub');b.textContent=t;b.classList.add('on');clearTimeout(petT);petT=setTimeout(()=>b.classList.remove('on'),ms)}
+function celebrate(){const p=$('pet'),w=$('pw');w.classList.add('spin');
+ for(let i=0;i<10;i++){const s=document.createElement('span');s.className='sp';s.textContent=i%2?'✨':'⭐';s.style.setProperty('--a',i*36+'deg');p.appendChild(s);setTimeout(()=>s.remove(),1700)}
+ setTimeout(()=>w.classList.remove('spin'),1900)}
+function onResult(p){lastP=p;
+ if(p>=75){setMood('happy');say('Amazing, '+NAME+'! 🎉 '+p+'%',6000);celebrate()}
+ else if(p>=50){setMood('ok');say('Not bad! Check the key below 📖',6000)}
+ else{setMood('sad');say("Oh no… but we'll fix this together 💛",6000)}}
+function leaveResult(){const p=lastP;
+ const m=p>=75?['Way to go! 🌟','Great job, '+NAME+'! 🎉','You nailed it! 💪']:p>=50?['Great job! Keep it up 💪','Nice progress, keep going!','Almost there, keep trying! ✨']:["That's okay, keep trying! 💛","Every attempt helps, you've got this!","Don't give up, "+NAME+"! 🌈"];
+ setMood(p>=75?'happy':'hi');say(rnd(m),4500);setTimeout(()=>setMood('hi'),4800)}
+$('pet').onclick=()=>{const w=$('pw');w.classList.add('hop');setTimeout(()=>w.classList.remove('hop'),650);say(rnd(['Keep going! 📚','You can do it, '+NAME+'! 💪','Hehe 🥟','Stay curious ✨']),2500)};
+setMood('hi');$('sp').innerHTML=petSVG('hi');$('sbub').textContent='Hi '+NAME+', ready to learn? 📚';
+function hideSplash(){const s=$('splash');if(s.classList.contains('off'))return;s.classList.add('off');$('pet').style.display='block';setTimeout(()=>s.remove(),600)}
+$('splash').onclick=hideSplash;setTimeout(hideSplash,3200);
+render();
+</script><script>if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{})</script></body></html>
